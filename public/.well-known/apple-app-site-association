@@ -1,0 +1,17 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appID": "HGS93H2L2H.com.kpslholdings.ootnox.dev",
+                "paths": ["/post/*"]
+            }
+        ]
+    },
+    "activitycontinuation": {
+        "apps": ["HGS93H2L2H.com.kpslholdings.ootnox.dev"]
+    },
+    "webcredentials": {
+        "apps": ["HGS93H2L2H.com.kpslholdings.ootnox.dev"]
+    }
+}
