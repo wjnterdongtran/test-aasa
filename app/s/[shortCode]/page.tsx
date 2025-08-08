@@ -112,7 +112,8 @@ export async function generateMetadata({
                 canonical: `/s/${shortCode}`,
             },
         };
-    } catch (error) {
+    } catch (error: unknown) {
+        console.error("Error generating metadata:", error);
         return {
             title: "Post Not Found",
             description: "The requested post could not be found.",
