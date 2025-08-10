@@ -49,7 +49,9 @@ export default function PostViewer({ postData }: PostViewerProps) {
     const isMobile = () => isIOS() || isAndroid();
 
     const openInApp = () => {
-        const deepLink = `${process.env.NEXT_PUBLIC_APP_SCHEME}://post/${postData?.id}`;
+        const deepLink = `${
+            process.env.NEXT_PUBLIC_APP_SCHEME || "ootnox-dev"
+        }://post/${postData?.id}`;
 
         window.location.href = deepLink;
 
