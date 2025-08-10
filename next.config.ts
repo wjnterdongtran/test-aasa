@@ -16,7 +16,13 @@ const nextConfig: NextConfig = {
                 source: "/.well-known/apple-app-site-association",
                 headers: [
                     { key: "Content-Type", value: "application/json" },
-                    // Optional caching (tweak as you like)
+                    { key: "Cache-Control", value: "public, max-age=3600" },
+                ],
+            },
+            {
+                source: "/.well-known/assetlinks.json",
+                headers: [
+                    { key: "Content-Type", value: "application/json" },
                     { key: "Cache-Control", value: "public, max-age=3600" },
                 ],
             },
@@ -29,10 +35,19 @@ const nextConfig: NextConfig = {
     },
     async rewrites() {
         return [
+            // Route well-known files to API endpoints
+            {
+                source: "/.well-known/apple-app-site-association",
+                destination: "/api/.well-known/apple-app-site-association",
+            },
+            {
+                source: "/.well-known/assetlinks.json",
+                destination: "/api/.well-known/assetlinks.json",
+            },
             // Serve the same file at /apple-app-site-association too
             {
                 source: "/apple-app-site-association",
-                destination: "/.well-known/apple-app-site-association",
+                destination: "/api/.well-known/apple-app-site-association",
             },
         ];
     },

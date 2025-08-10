@@ -49,14 +49,9 @@ export default function PostViewer({ postData }: PostViewerProps) {
     const isMobile = () => isIOS() || isAndroid();
 
     const openInApp = () => {
-        const deepLink = `ootnox-dev://post/${postData?.id}`;
-        // const universalLink = `https://yourapp.com/post/${postData?.id}`;
+        const deepLink = `${process.env.NEXT_PUBLIC_APP_SCHEME}://post/${postData?.id}`;
 
-        if (isIOS()) {
-            window.location.href = deepLink;
-        } else {
-            window.location.href = deepLink;
-        }
+        window.location.href = deepLink;
 
         // Fallback to app store after delay
         setTimeout(() => {
