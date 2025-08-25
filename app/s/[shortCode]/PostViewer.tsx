@@ -18,7 +18,7 @@ interface PostData {
     username: string;
     userAvatar: string;
     thumbnail: string;
-    mediaType: string;
+    mediaType: string; // "image" | "video" | "profile"
     like: number;
     comment: number;
     view: number;
@@ -49,9 +49,10 @@ export default function PostViewer({ postData }: PostViewerProps) {
     const isMobile = () => isIOS() || isAndroid();
 
     const openInApp = () => {
+        const isProfile = postData?.mediaType === "profile";
         const deepLink = `${
             process.env.NEXT_PUBLIC_APP_SCHEME || "ootnox-dev"
-        }://post/${postData?.id}`;
+        }://${isProfile ? "user" : "post"}/${postData?.id}`;
 
         window.location.href = deepLink;
 
@@ -74,7 +75,93 @@ export default function PostViewer({ postData }: PostViewerProps) {
         }
     };
 
-    return (
+    const renderUserProfile = () => (
+        <>
+            <div className="max-w-sm w-full">
+                {/* User Profile Card */}
+                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-8 border border-white/20 shadow-2xl">
+                    {/* Profile Header */}
+                    <div className="text-center mb-6">
+                        <div className="relative inline-block mb-4">
+                            <Image
+                                src={postData?.userAvatar}
+                                alt={postData?.username}
+                                className="w-24 h-24 rounded-full border-4 border-white/30 mx-auto"
+                                width={96}
+                                height={96}
+                                quality={100}
+                                priority={true}
+                            />
+                        </div>
+                        <h1 className="text-white font-bold text-xl mb-1">
+                            {postData?.name}
+                        </h1>
+                        <p className="text-gray-300 text-sm mb-4">
+                            @{postData?.username}
+                        </p>
+
+                        {/* Bio */}
+                        <p className="text-white text-sm leading-relaxed">
+                            {postData?.caption}
+                        </p>
+                    </div>
+
+                    {/* Profile Stats */}
+                    <div className="flex items-center justify-center text-sm text-gray-300 mb-4">
+                        <div className="flex items-center space-x-1">
+                            <Eye className="w-4 h-4" />
+                            <span>
+                                {postData?.view?.toLocaleString()} profile views
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* App Download Section */}
+                <div className="text-center">
+                    <div className="mb-6">
+                        <div className="w-20 h-20 bg-gradient-to-r from-pink-500 to-violet-500 rounded-2xl mx-auto mb-4 flex items-center justify-center transform hover:scale-105 transition-transform">
+                            <Smartphone className="w-10 h-10 text-white" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-white mb-2">
+                            Follow {postData?.name}
+                        </h2>
+                        <p className="text-gray-300">
+                            Get the app to follow @{postData?.username} and
+                            discover amazing content from this creator
+                        </p>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="space-y-4">
+                        {isMobile() ? (
+                            <button
+                                onClick={openInApp}
+                                className="w-full bg-gradient-to-r from-pink-500 to-violet-500 text-white py-4 px-6 rounded-2xl font-semibold text-lg hover:from-pink-600 hover:to-violet-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                            >
+                                <ExternalLink className="w-5 h-5 inline mr-2" />
+                                Open in App
+                            </button>
+                        ) : null}
+
+                        <button
+                            onClick={redirectToAppStore}
+                            className="w-full bg-white text-purple-900 py-4 px-6 rounded-2xl font-semibold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                        >
+                            <Download className="w-5 h-5 inline mr-2" />
+                            {isMobile() ? "Get the App" : "Download App"}
+                        </button>
+
+                        <p className="text-gray-400 text-sm">
+                            Available on iOS and Android
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+
+    const renderPost = () => (
         <>
             <div className="max-w-sm w-full">
                 {/* Post Preview Card */}
@@ -109,16 +196,6 @@ export default function PostViewer({ postData }: PostViewerProps) {
                             quality={100}
                             priority={true}
                         />
-                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                                <Play className="w-8 h-8 text-white ml-1" />
-                            </div>
-                        </div>
-                        {postData?.mediaType === "video" && (
-                            <div className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded">
-                                Video
-                            </div>
-                        )}
                     </div>
 
                     {/* Post Stats */}
@@ -184,6 +261,14 @@ export default function PostViewer({ postData }: PostViewerProps) {
                     </div>
                 </div>
             </div>
+        </>
+    );
+
+    const isProfile = postData?.mediaType === "profile";
+
+    return (
+        <>
+            {isProfile ? renderUserProfile() : renderPost()}
             {/* App Prompt Modal */}
             {showAppPrompt && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end justify-center p-4 z-50">
@@ -196,8 +281,9 @@ export default function PostViewer({ postData }: PostViewerProps) {
                                 Better experience in the app
                             </h3>
                             <p className="text-gray-600 text-sm">
-                                Watch videos, follow creators, and join the
-                                community
+                                {isProfile
+                                    ? `Follow @${postData?.username}, discover their content, and join the community`
+                                    : "Watch videos, follow creators, and join the community"}
                             </p>
                         </div>
 

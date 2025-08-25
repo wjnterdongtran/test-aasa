@@ -6,7 +6,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#4D1CFF]  to-[#5E6DFF] relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-[#5E6DFF]  to-[#4D1CFF] relative overflow-hidden">
             {/* Animated background elements */}
             <div className="absolute inset-0">
                 <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>

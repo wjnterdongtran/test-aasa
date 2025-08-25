@@ -26,13 +26,22 @@ interface Post {
     view: number;
 }
 
+interface PostShortCodeData {
+    clickCount: number;
+    type: "post";
+    contentId: string;
+    post: Post;
+}
+
+interface UserShortCodeData {
+    clickCount: number;
+    type: "user";
+    contentId: string;
+    user: User;
+}
+
 interface ShortCodeResponse {
-    data: {
-        clickCount: number;
-        type: string;
-        contentId: string;
-        post: Post;
-    };
+    data: PostShortCodeData | UserShortCodeData;
 }
 
 async function fetchShortCodeData(
@@ -71,50 +80,86 @@ export async function generateMetadata({
     try {
         const { shortCode } = await params;
         const data = await fetchShortCodeData(shortCode);
-        const { post } = data.data;
 
-        const firstImage = post.contents.find(
-            (content) => content.type === "image"
-        );
-        const description =
-            post.userId.bio ||
-            `Post by ${post.userId.name} (@${post.userId.username})`;
+        if (data.data.type === "user") {
+            const { user } = data.data as UserShortCodeData;
+            const description =
+                user.bio || `Follow ${user.name} (@${user.username})`;
 
-        return {
-            title: `${post.userId.name} (@${post.userId.username}) - Post`,
-            description: description.slice(0, 160),
-            openGraph: {
-                title: `${post.userId.name} (@${post.userId.username})`,
+            return {
+                title: `${user.name} (@${user.username}) - Profile`,
                 description: description.slice(0, 160),
-                images: firstImage
-                    ? [
-                          {
-                              url: firstImage.url,
-                              width: 800,
-                              height: 600,
-                              alt: `Post by ${post.userId.name}`,
-                          },
-                      ]
-                    : [],
-                type: "article",
-                authors: [post.userId.name],
-            },
-            twitter: {
-                card: "summary_large_image",
-                title: `${post.userId.name} (@${post.userId.username})`,
+                openGraph: {
+                    title: `${user.name} (@${user.username})`,
+                    description: description.slice(0, 160),
+                    images: user.avatar
+                        ? [
+                              {
+                                  url: user.avatar,
+                                  width: 400,
+                                  height: 400,
+                                  alt: `${user.name}'s profile picture`,
+                              },
+                          ]
+                        : [],
+                    type: "profile",
+                },
+                twitter: {
+                    card: "summary",
+                    title: `${user.name} (@${user.username})`,
+                    description: description.slice(0, 160),
+                    images: user.avatar ? [user.avatar] : [],
+                    creator: `@${user.username}`,
+                },
+                alternates: {
+                    canonical: `/s/${shortCode}`,
+                },
+            };
+        } else {
+            const { post } = data.data as PostShortCodeData;
+            const firstImage = post.contents.find(
+                (content) => content.type === "image"
+            );
+            const description =
+                post.userId.bio ||
+                `Post by ${post.userId.name} (@${post.userId.username})`;
+
+            return {
+                title: `${post.userId.name} (@${post.userId.username}) - Post`,
                 description: description.slice(0, 160),
-                images: firstImage ? [firstImage.url] : [],
-                creator: `@${post.userId.username}`,
-            },
-            alternates: {
-                canonical: `/s/1234567890`,
-            },
-        };
+                openGraph: {
+                    title: `${post.userId.name} (@${post.userId.username})`,
+                    description: description.slice(0, 160),
+                    images: firstImage
+                        ? [
+                              {
+                                  url: firstImage.url,
+                                  width: 800,
+                                  height: 600,
+                                  alt: `Post by ${post.userId.name}`,
+                              },
+                          ]
+                        : [],
+                    type: "article",
+                    authors: [post.userId.name],
+                },
+                twitter: {
+                    card: "summary_large_image",
+                    title: `${post.userId.name} (@${post.userId.username})`,
+                    description: description.slice(0, 160),
+                    images: firstImage ? [firstImage.url] : [],
+                    creator: `@${post.userId.username}`,
+                },
+                alternates: {
+                    canonical: `/s/${shortCode}`,
+                },
+            };
+        }
     } catch (error: unknown) {
         console.error("Error generating metadata:", error);
         return {
-            title: "Post Not Found",
-            description: "The requested post could not be found.",
+            title: "Content Not Found",
+            description: "The requested content could not be found.",
         };
     }
 }
@@ -127,27 +172,49 @@ export default async function ShortCodePage({
     try {
         const { shortCode } = await params;
         const data = await fetchShortCodeData(shortCode);
-        const { post, clickCount } = data.data;
 
-        // Map API response to PostViewer expected format
-        const postData = {
-            id: post._id,
-            name: post.userId.name,
-            username: post.userId.username,
-            userAvatar: post.userId.avatar,
-            thumbnail:
-                post.contents.find((c) => c.type === "image")?.url ||
-                post.contents[0]?.url ||
-                "",
-            mediaType: post.contents[0]?.type || "image",
-            like: post.like,
-            comment: post.comment,
-            view: clickCount,
-            caption:
-                post.userId.bio || `Check out this post by ${post.userId.name}`,
-        };
+        if (data.data.type === "user") {
+            const { user, clickCount } = data.data as UserShortCodeData;
 
-        return <PostViewer postData={postData} />;
+            // For user sharing, create a user profile display format
+            const userProfileData = {
+                id: user._id,
+                name: user.name,
+                username: user.username,
+                userAvatar: user.avatar,
+                thumbnail: user.avatar,
+                mediaType: "profile",
+                like: 0,
+                comment: 0,
+                view: clickCount,
+                caption: user.bio || `Follow ${user.name} (@${user.username})`,
+            };
+
+            return <PostViewer postData={userProfileData} />;
+        } else {
+            const { post, clickCount } = data.data as PostShortCodeData;
+
+            // Map API response to PostViewer expected format
+            const postData = {
+                id: post._id,
+                name: post.userId.name,
+                username: post.userId.username,
+                userAvatar: post.userId.avatar,
+                thumbnail:
+                    post.contents.find((c) => c.type === "image")?.url ||
+                    post.contents[0]?.url ||
+                    "",
+                mediaType: post.contents[0]?.type || "image",
+                like: post.like,
+                comment: post.comment,
+                view: clickCount,
+                caption:
+                    post.userId.bio ||
+                    `Check out this post by ${post.userId.name}`,
+            };
+
+            return <PostViewer postData={postData} />;
+        }
     } catch (error) {
         console.error("Error loading short code page:", error);
         notFound();
