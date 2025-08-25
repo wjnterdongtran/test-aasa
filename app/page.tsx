@@ -8,7 +8,7 @@ const MobileAppRedirect = () => {
             {/* Animated background elements */}
             <footer className="p-6 text-center">
                 <p className="text-gray-400 text-sm">
-                    © 2025 YourApp. Share amazing moments.
+                    © 2025 FASHISENSE. Share amazing moments.
                 </p>
             </footer>
         </div>

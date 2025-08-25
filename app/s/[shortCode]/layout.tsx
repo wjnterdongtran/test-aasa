@@ -6,7 +6,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#FFDD55]  to-[#D12929] relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-[#4D1CFF]  to-[#5E6DFF] relative overflow-hidden">
             {/* Animated background elements */}
             <div className="absolute inset-0">
                 <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -20,12 +20,12 @@ export default function RootLayout({
                     <div className="flex items-center space-x-3">
                         <Image
                             src="/logo.svg"
-                            alt="OotDrop"
+                            alt="fashisense"
                             width={32}
                             height={32}
                         />
                         <h1 className="text-white font-bold text-xl">
-                            OOTDROP
+                            FASHISENSE
                         </h1>
                     </div>
                 </header>
@@ -38,7 +38,7 @@ export default function RootLayout({
                 {/* Footer */}
                 <footer className="p-6 text-center">
                     <p className="text-gray-400 text-sm">
-                        © 2025 OotDrop. Share amazing moments.
+                        © 2025 FASHISENSE. Share amazing moments.
                     </p>
                 </footer>
             </div>

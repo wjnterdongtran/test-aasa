@@ -35,60 +35,32 @@ interface ShortCodeResponse {
     };
 }
 
-async function fetchShortCodeData(): Promise<ShortCodeResponse> {
-    // shortCode: string
-    // const externalServiceUrl =
-    //     process.env.EXTERNAL_SERVICE_URL || "https://api.example.com";
-    // const apiKey = process.env.EXTERNAL_SERVICE_API_KEY;
+async function fetchShortCodeData(
+    shortCode: string
+): Promise<ShortCodeResponse> {
+    const externalServiceUrl =
+        process.env.EXTERNAL_SERVER_URL || "https://api.example.com";
 
-    // const response = await fetch(
-    //     `http://172.16.5.204:5050/api/links/${shortCode}`,
-    //     {
-    //         // const response = await fetch(`${externalServiceUrl}/s/${shortCode}`, {
-    //         method: "GET",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             ...(apiKey && { Authorization: `Bearer ${apiKey}` }),
-    //         },
-    //         next: { revalidate: 60 }, // Revalidate every 60 seconds
-    //     }
-    // );
-
-    // if (!response.ok) {
-    //     if (response.status === 404) {
-    //         notFound();
-    //     }
-    //     throw new Error(`Failed to fetch: ${response.status}`);
-    // }
-
-    return {
-        data: {
-            clickCount: 38,
-            type: "post",
-            contentId: "68931d8b085eae2d546b5c7d",
-            post: {
-                _id: "68931d8b085eae2d546b5c7d",
-                contents: [
-                    {
-                        id: "68931d90085eae2d546b5c80",
-                        url: "https://dhzrhptszj83u.cloudfront.net/posts/images/2025-08/68931d8b085eae2d546b5c7d_68774c761d9e19f248bf4755_20250806T091659.jpeg",
-                        type: "image",
-                        status: "C",
-                    },
-                ],
-                like: 1,
-                comment: 0,
-                view: 0,
-                userId: {
-                    _id: "68774c761d9e19f248bf4755",
-                    name: "Boher?",
-                    username: "stev_chenfangshaodong",
-                    avatar: "https://dhzrhptszj83u.cloudfront.net/avatar/68774c761d9e19f248bf4755/2025-08-1754386896088.jpeg",
-                    bio: "bio tech ma ffoeg ma ffoeg ma đờ heo",
-                },
-            },
+    const response = await fetch(`${externalServiceUrl}/links/${shortCode}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
         },
-    };
+        next: { revalidate: 60 }, // Revalidate every 60 seconds
+    });
+
+    if (!response.ok) {
+        if (response.status === 404) {
+            notFound();
+        }
+        throw new Error(`Failed to fetch: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    console.log(data);
+
+    return data;
 }
 
 export async function generateMetadata({
@@ -97,8 +69,8 @@ export async function generateMetadata({
     params: Promise<{ shortCode: string }>;
 }): Promise<Metadata> {
     try {
-        // const { shortCode } = await params;
-        const data = await fetchShortCodeData();
+        const { shortCode } = await params;
+        const data = await fetchShortCodeData(shortCode);
         const { post } = data.data;
 
         const firstImage = post.contents.find(
@@ -153,8 +125,8 @@ export default async function ShortCodePage({
     params: Promise<{ shortCode: string }>;
 }) {
     try {
-        // const { shortCode } = await params;
-        const data = await fetchShortCodeData();
+        const { shortCode } = await params;
+        const data = await fetchShortCodeData(shortCode);
         const { post, clickCount } = data.data;
 
         // Map API response to PostViewer expected format

@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
                 protocol: "https",
                 hostname: "dhzrhptszj83u.cloudfront.net",
             },
+            {
+                protocol: "https",
+                hostname: "lh3.googleusercontent.com",
+            },
         ],
     },
     async headers() {

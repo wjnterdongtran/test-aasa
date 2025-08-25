@@ -15,7 +15,7 @@ export async function GET(
         }
 
         // Replace with your actual external service URL
-        const externalServiceUrl = process.env.EXTERNAL_SERVICE_URL;
+        const externalServiceUrl = process.env.EXTERNAL_SERVER_URL;
 
         const response = await fetch(
             `${externalServiceUrl}/links/${shortCode}`,
